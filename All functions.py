@@ -181,3 +181,7 @@
 # IF __name__ == "__main"__:
 #main()
 
+#Github
+#git add .
+#git commit -m "..."
+#itgit push
