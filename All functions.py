@@ -184,4 +184,5 @@
 #Github
 #git add .
 #git commit -m "..."
-#itgit push
+#git push
+#
