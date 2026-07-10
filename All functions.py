@@ -182,6 +182,8 @@
 #main()
 
 #Github
+#cd "/c/Users/r_ana/PyCharmMiscProject" - go to a file directory
+# C:\Users\r_ana\PyCharmMiscProject\.venv2\Test.py - eg of a particular
 #git add .
 #git commit -m "..."
 #git push
