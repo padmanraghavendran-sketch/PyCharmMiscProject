@@ -3,106 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookMyMovie - Dashboard</title>
+    <title>BookMyMovie - Command Terminal</title>
     <style>
         :root {
-            --bg-color: #0d0d13;
-            --card-bg: #151522;
-            --text-color: #ffffff;
-            --sub-text: #a0a0b0;
-            --border-color: #1f1f2e;
+            --bg-color: #06060c;
+            --card-bg: #11111f;
+            --accent: #ff3838;
+            --accent-glow: rgba(255, 56, 56, 0.25);
+            --text: #ffffff;
+            --sub-text: #808095;
+            --border: #1a1a2e;
         }
         .light-mode {
-            --bg-color: #f4f4f7;
+            --bg-color: #f4f4f9;
             --card-bg: #ffffff;
-            --text-color: #1a1a24;
-            --sub-text: #606070;
-            --border-color: #d1d1d6;
+            --accent: #e02424;
+            --accent-glow: rgba(224, 36, 36, 0.15);
+            --text: #12121c;
+            --sub-text: #606075;
+            --border: #d1d1db;
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 20px;
-            transition: background 0.3s, color 0.3s;
-        }
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px; margin-bottom: 30px; position: relative;
-        }
-        .logo { color: #ff3838; font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        body { background-color: var(--bg-color); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 30px; transition: all 0.3s ease; }
 
-        /* Dropdown Profile Container */
+        /* 🚀 High-Demand Platform Live Ticker Banner */
+        .live-ticker { background: #0a0a14; border: 1px solid #ffaa00; border-radius: 6px; padding: 10px 20px; font-family: monospace; font-size: 13px; color: #ffaa00; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(255,170,0,0.1); }
+        .pulse-dot { width: 8px; height: 8px; background: #ffaa00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; margin-right: 6px; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 35px; }
+        .logo { font-size: 26px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-glow); }
+
         .profile-area { position: relative; }
-        .user-badge {
-            background: #ff3838; color: white; padding: 8px 16px; border-radius: 20px;
-            font-size: 14px; cursor: pointer; font-weight: bold; user-select: none;
-        }
-        .dropdown-menu {
-            display: none; position: absolute; right: 0; top: 35px; background: var(--card-bg);
-            border: 1px solid var(--border-color); border-radius: 8px; width: 180px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; overflow: hidden;
-        }
-        .dropdown-menu a, .dropdown-menu button {
-            display: block; width: 100%; text-align: left; background: none; border: none;
-            padding: 12px 16px; color: var(--text-color); text-decoration: none;
-            font-size: 14px; cursor: pointer; box-sizing: border-box;
-        }
-        .dropdown-menu a:hover, .dropdown-menu button:hover { background: #ff3838; color: white; }
+        .user-badge { background: var(--accent); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px var(--accent-glow); transition: transform 0.2s; }
+        .user-badge:hover { transform: translateY(-2px); }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 45px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 190px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); z-index: 100; overflow: hidden; }
+        .dropdown-menu a, .dropdown-menu button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; cursor: pointer; box-sizing: border-box; font-family: inherit; }
+        .dropdown-menu a:hover, .dropdown-menu button:hover { background: var(--accent); color: white; }
 
-        .search-container { display: flex; gap: 10px; max-width: 500px; margin-bottom: 30px; }
-        .search-input {
-            flex: 1; background: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 10px 15px; border-radius: 6px; color: var(--text-color); font-size: 15px; outline: none;
-        }
-        .search-btn { background: #ff3838; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .clear-btn { background: var(--border-color); color: var(--sub-text); border: none; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+        .search-container { display: flex; gap: 12px; max-width: 550px; margin-bottom: 40px; }
+        .search-input { flex: 1; background: var(--card-bg); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); font-size: 15px; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: var(--accent); }
+        .search-btn { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px var(--accent-glow); }
+        .clear-btn { background: var(--border); color: var(--sub-text); border: none; padding: 12px 18px; border-radius: 8px; text-decoration: none; font-size: 14px; display: flex; align-items: center; }
 
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+        /* 🎯 USP Affinity Recommendation Block Layout */
+        .recs-container { background: linear-gradient(135deg, rgba(255,56,56,0.08), rgba(255,184,48,0.03)); border: 1px solid rgba(255,56,56,0.25); padding: 30px; border-radius: 16px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+
+        .grid-title { font-size: 20px; font-weight: 700; margin-bottom: 25px; color: var(--text); display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 30px; }
         .movie-link { text-decoration: none; color: inherit; }
-        .movie-card {
-            background: var(--card-bg); border-radius: 10px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s; position: relative;
-            border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%;
-        }
-        .movie-card:hover { transform: scale(1.03); }
-        .movie-poster { width: 100%; height: 280px; object-fit: cover; }
-        .age-badge {
-            position: absolute; top: 12px; left: 12px; background: rgba(255, 56, 56, 0.9);
-            color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
-        }
-        .movie-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .movie-title { font-size: 17px; font-weight: 600; margin: 0 0 6px 0; }
-        .movie-rating { color: #ffb830; font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-        .movie-desc { font-size: 13px; color: var(--sub-text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .alert-bar { background: #ffaa00; color: #111; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+
+        .movie-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); position: relative; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; }
+        .movie-card:hover { transform: translateY(-8px); border-color: var(--accent); box-shadow: 0 12px 30px var(--accent-glow); }
+        .movie-poster { width: 100%; height: 320px; object-fit: cover; border-bottom: 1px solid var(--border); }
+
+        .age-badge { position: absolute; top: 15px; left: 12px; background: rgba(255, 56, 56, 0.9); color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .movie-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .movie-title { font-size: 17px; font-weight: 700; margin: 0 0 8px 0; line-height: 1.3; }
+        .movie-rating { color: #ffb830; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .alert-bar { background: #ff9900; color: #06060c; padding: 14px 20px; border-radius: 8px; margin-bottom: 30px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 15px rgba(255,153,0,0.2); }
     </style>
 </head>
 <body>
 
+    <!-- Dynamic Platform Monitoring Banner Ticker -->
+    <div class="live-ticker">
+        <div><span class="pulse-dot"></span><span id="tickerLog">SYSTEM CHECK: Initializing cloud nodes...</span></div>
+        <div style="font-weight: bold;" id="tickerTime">00:00:00 AM</div>
+    </div>
+
     <div class="header">
         <div class="logo">🍿 BookMyMovie</div>
         <div class="profile-area">
-            <div class="user-badge" onclick="toggleDropdown()">👤 Account Menu</div>
+            <div class="user-badge" onclick="toggleDropdown()">👤 Server Account Menu</div>
             <div class="dropdown-menu" id="userDropdown">
-                <a href="/history">📜 Check History</a>
-                <button onclick="toggleTheme()">🌓 Toggle Mode</button>
-                <a href="/logout" style="border-top: 1px solid var(--border-color);">🚪 Sign Out</a>
+                <a href="/history">📜 System Order Audit</a>
+                <button onclick="toggleTheme()">🌓 Altern Mode Layout</button>
+                <a href="/logout" style="border-top: 1px solid var(--border);">🚪 Server Safe Exit</a>
             </div>
         </div>
     </div>
 
     {% if is_fallback %}
-        <div class="alert-bar">⚠️ Head's Up: Searched movie is not currently live in theaters! Displaying full list of current releases instead.</div>
+        <div class="alert-bar">⚠️ Search Miss: Selected title is unallocated in active server regions. Defaulting to general inventory profiles.</div>
     {% endif %}
 
     <form action="/" method="GET" class="search-container">
-        <input type="text" name="search" class="search-input" placeholder="Search live movies..." value="{{ search_query }}">
-        <button type="submit" class="search-btn">Search</button>
-        {% if search_query %} <a href="/" class="clear-btn">Clear</a> {% endif %}
+        <input type="text" name="search" class="search-input" placeholder="Query cluster releases (e.g., Omen, Day, etc)..." value="{{ search_query }}">
+        <button type="submit" class="search-btn">Query Engine</button>
+        {% if search_query %} <a href="/" class="clear-btn">Clear Filter</a> {% endif %}
     </form>
 
+    <!-- 🎯 USP MODULE: GENRE AFFINITY MATRIX TARGETING ROW -->
+    {% if recommendations %}
+    <div class="recs-container">
+        <div class="grid-title" style="color: #ff3838; font-size: 16px;"><span style="font-size:20px;">🎯</span> AI-Driven Affinity Recommendations (Based on History Logs)</div>
+        <div class="movie-grid">
+            {% for movie in recommendations %}
+            <a href="/book/{{ movie.title }}" class="movie-link">
+                <div class="movie-card" style="border-color: rgba(255, 56, 56, 0.4); background: #1a101f;">
+                    <div class="age-badge" style="background: linear-gradient(45deg, #ffb830, #ff3838); color: white;">98% MATCH</div>
+                    <img class="movie-poster" src="{{ movie.poster_path }}" alt="Poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+                        <div class="movie-rating">⭐ {{ movie.rating }} <span style="color:var(--sub-text); font-size:12px; font-weight:normal; margin-left:3px;">/ 10</span></div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid-title">Live Theater Allocation Matrices</div>
     <div class="movie-grid">
         {% for movie in movies %}
         <a href="/book/{{ movie.title }}" class="movie-link">
@@ -110,11 +123,8 @@
                 <div class="age-badge">{{ movie.age_rating }}</div>
                 <img class="movie-poster" src="{{ movie.poster_path }}" alt="Poster">
                 <div class="movie-info">
-                    <div>
-                        <h3 class="movie-title">{{ movie.title }}</h3>
-                        <div class="movie-rating">⭐ {{ movie.rating }} / 10</div>
-                    </div>
-                    <p class="movie-desc">{{ movie.description }}</p>
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-rating">⭐ {{ movie.rating }} <span style="color:var(--sub-text); font-size:12px; font-weight:normal; margin-left:3px;">/ 10</span></div>
                 </div>
             </div>
         </a>
@@ -130,15 +140,29 @@
             document.body.classList.toggle('light-mode');
             localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
-        // Load preference
         if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
 
-        // Close window clicks
         window.onclick = function(event) {
             if (!event.target.matches('.user-badge')) {
                 document.getElementById('userDropdown').style.display = 'none';
             }
         }
+
+        // Live Platform Log Simulator Marquee
+        const mockLogStrings = [
+            "User booking registered in Bengaluru Node cluster...",
+            "Surge engine calculating vector coefficients for Prime showtimes...",
+            "TMDB REST cache synced successfully with localized storage nodes...",
+            "Waitlist checking stack array parameters for open allocations...",
+            "Telemetry heartbeat signal broadcast: Code 200 OK..."
+        ];
+        setInterval(() => {
+            document.getElementById('tickerLog').innerText = mockLogStrings[Math.floor(Math.random() * mockLogStrings.length)];
+        }, 6000);
+
+        setInterval(() => {
+            document.getElementById('tickerTime').innerText = new Date().toLocaleTimeString();
+        }, 1000);
     </script>
 </body>
 </html>

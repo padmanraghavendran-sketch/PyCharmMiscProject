@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Tickets - {{ movie.title }}</title>
     <style>
-        body { background-color: #0d0d13; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; }
-        .main-layout { max-width: 1150px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+        body { background-color: #0d0d13; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; transition: all 0.5s ease; }
+        .main-layout { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; position: relative; }
         .container { display: flex; gap: 40px; background: #151522; padding: 30px; border-radius: 12px; border: 1px solid #1f1f2e; position: relative; }
         .poster { width: 300px; height: 440px; object-fit: cover; border-radius: 8px; }
         .details { flex: 1; }
@@ -16,11 +16,11 @@
         .plot { color: #a0a0b0; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
         .section-title { font-size: 14px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
 
-        /* Neon Surge Pricing Flashing Banner */
-        .surge-banner { display: none; background: linear-gradient(90deg, #ff9900, #ff3838); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 20px; animation: pulse 1.5s infinite; width: fit-content; letter-spacing: 0.5px; }
+        .surge-banner { display: none; background: linear-gradient(90deg, #ff9900, #ff3838); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 20px; animation: pulse 1.5s infinite; width: fit-content; }
         @keyframes pulse { 0% { opacity: 0.85; } 50% { opacity: 1; box-shadow: 0 0 15px rgba(255,56,56,0.5); } 100% { opacity: 0.85; } }
 
-        .flash-err { background: #ff3838; color: white; padding: 12px; border-radius: 6px; margin-bottom: 25px; font-weight: bold; list-style: none; }
+        .flash-msg { background: #4cd137; color: white; padding: 12px; border-radius: 6px; margin-bottom: 25px; font-weight: bold; list-style: none; text-align: center; }
+        .flash-err { background: #ff3838; color: white; padding: 12px; border-radius: 6px; margin-bottom: 25px; font-weight: bold; list-style: none; text-align: center; }
 
         .time-slots { display: flex; gap: 15px; margin-bottom: 30px; }
         .time-btn { background: #252538; color: white; border: 1px solid #35354a; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -34,8 +34,7 @@
         .screen-bar { background: #e2e2e2; height: 6px; border-radius: 4px; box-shadow: 0 0 12px rgba(255,255,255,0.6); margin-bottom: 8px; }
         .screen-text { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; }
 
-        /* Row Perspective Live Alert Box */
-        .view-preview-box { background: #0d0d13; border: 1px dashed #35354a; border-radius: 6px; padding: 10px; text-align: center; font-size: 13px; color: #a0a0b0; margin-bottom: 20px; font-weight: 500; min-height: 20px; }
+        .view-preview-box { background: #0d0d13; border: 1px dashed #35354a; border-radius: 6px; padding: 10px; text-align: center; font-size: 13px; color: #a0a0b0; margin-bottom: 20px; min-height: 20px; }
 
         .legend { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; font-size: 12px; }
         .legend-item { display: flex; align-items: center; gap: 6px; }
@@ -63,7 +62,15 @@
         .pay-trigger-btn { background: #4cd137; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; text-align: center; margin-top: 5px; }
         .back-link { display: inline-block; color: #a0a0b0; text-decoration: none; margin-bottom: 20px; }
 
-        .review-section { background: #151522; padding: 30px; border-radius: 12px; border: 1px solid #1f1f2e; }
+        /* ⚡ TELEMETRY DevOps DASHBOARD DRAW PANELS */
+        .telemetry-dashboard { background: #09090f; border: 2px solid #4cd137; border-radius: 12px; padding: 20px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(76, 209, 55, 0.15); font-family: monospace; }
+        .tel-title { display: flex; justify-content: space-between; align-items: center; color: #4cd137; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid #223e22; padding-bottom: 8px; }
+        .tel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .tel-card { background: #12121e; border: 1px solid #1f1f2e; padding: 12px; border-radius: 6px; }
+        .tel-lbl { font-size: 11px; color: #707085; text-transform: uppercase; margin-bottom: 4px; }
+        .tel-val { font-size: 16px; font-weight: bold; color: #ffffff; }
+
+        .review-section { background: #151522; padding: 30px; border-radius: 12px; border: 1px solid #1f1f2e; margin-top: 30px; }
         .review-form { margin-bottom: 30px; background: #1f1f32; padding: 20px; border-radius: 8px; border: 1px solid #252538; }
         .review-input-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .select-input { background: #252538; color: white; border: 1px solid #35354a; padding: 10px; border-radius: 6px; font-size: 14px; }
@@ -72,13 +79,22 @@
 
         details.reviews-accordion { background: #1a1a2e; border: 1px solid #252538; border-radius: 8px; padding: 15px; cursor: pointer; }
         details.reviews-accordion summary { font-weight: bold; font-size: 16px; color: #ff3838; user-select: none; }
-        .accordion-content { margin-top: 15px; cursor: default; }
+        .accordion-content { margin-top: 15px; }
         .review-card { background: #151522; padding: 15px; border-radius: 6px; border-left: 4px solid #ff3838; margin-bottom: 15px; }
         .review-meta { display: flex; justify-content: space-between; font-size: 13px; color: #a0a0b0; margin-bottom: 6px; }
         .review-rating-stars { color: #ffb830; font-weight: bold; }
         .review-text { font-size: 14px; color: #e2e2e2; margin: 0 0 10px 0; }
         .vote-actions { display: flex; gap: 15px; }
         .vote-btn { background: #252538; color: #a0a0b0; border: 1px solid #35354a; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        .upsell-toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #1f1f32, #2a2015); border: 2px solid #ffb830; padding: 15px 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 999; align-items: center; gap: 20px; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideUp { from { bottom: -100px; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        .upsell-text { font-size: 13px; color: #e2e2e2; }
+        .upsell-add-btn { background: #ffb830; color: #111; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .upsell-close { color: #a0a0b0; cursor: pointer; font-size: 12px; text-decoration: underline; }
+
+        .gold-cheat-activated { background-color: #241c02 !important; }
+        .gold-cheat-activated .container { border-color: #ffb830 !important; box-shadow: 0 0 25px rgba(255, 184, 48, 0.3); }
 
         .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 500; }
         .modal-card { background: #151522; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #35354a; }
@@ -96,12 +112,25 @@
     <div class="main-layout">
         <a href="/" class="back-link">← Cancel and Go Back</a>
 
+        <!-- ⚡ NEW USP STRUCTURAL BLOCK: INTERACTIVE OBSERVABILITY TELEMETRY CONSOLE -->
+        <div class="telemetry-dashboard">
+            <div class="tel-title">
+                <span>⚡ System Performance Observability Telemetry Console</span>
+                <span style="color:#707085;" id="telTimestamp">LIVE TRACKING</span>
+            </div>
+            <div class="tel-grid">
+                <div class="tel-card"><div class="tel-lbl">MySQL Target State</div><div class="tel-val" style="color:#4cd137;" id="telDbStatus">CONNECTED</div></div>
+                <div class="tel-card"><div class="tel-lbl">Query Optimization Speed</div><div class="tel-val" style="color:#ffb830;" id="telLatency">0.0 ms</div></div>
+                <div class="tel-card"><div class="tel-lbl">Platform Gross Volume</div><div class="tel-val" id="telRevenue">₹0</div></div>
+                <div class="tel-card"><div class="tel-lbl">Waitlist Switch Queue Length</div><div class="tel-val" style="color:#ff3838;" id="telQueue">0 users</div></div>
+            </div>
+        </div>
+
+        {% with successes = get_flashed_messages(category_filter=["success"]) %}
+            {% if successes %} <div class="flash-msg">{% for msg in successes %}{{ msg }}{% endfor %}</div> {% endif %}
+        {% endwith %}
         {% with errors = get_flashed_messages(category_filter=["error"]) %}
-            {% if errors %}
-                <div class="flash-err">
-                    {% for err in errors %}{{ err }}{% endfor %}
-                </div>
-            {% endif %}
+            {% if errors %} <div class="flash-err">{% for err in errors %}{{ err }}{% endfor %}</div> {% endif %}
         {% endwith %}
 
         <div class="container">
@@ -126,9 +155,7 @@
 
                     <div class="seating-section">
                         <div class="section-title">Select Seats (<span id="activeTime"></span>)</div>
-
                         <div class="surge-banner" id="surgeNotice">🔥 Prime-Time Surge Pricing Active (+20% Demand Increase)</div>
-
                         <div class="view-preview-box" id="viewPerspective">💡 Hover over or click any seat number to test screen perspective comfort.</div>
 
                         <div class="screen-container">
@@ -188,6 +215,13 @@
                             <div class="checkout-row"><span>Snacks Total:</span><strong>₹<span id="snackPriceLabel">0</span></strong></div>
                             <div class="checkout-row grand-total" style="font-weight: bold; color: #4cd137;"><span>Grand Total:</span><span>₹<span id="grandPriceLabel">0</span></span></div>
                             <button class="pay-trigger-btn" onclick="openPaymentModal()">Proceed to Checkout</button>
+
+                            <form action="/join-waitlist" method="POST" style="margin-top: 10px; border-top: 1px dashed #35354a; padding-top: 10px; text-align: center;">
+                                <input type="hidden" name="movie_title" value="{{ movie.title }}">
+                                <input type="hidden" name="show_time" class="waitlist-time-field">
+                                <p style="font-size: 11px; color: #a0a0b0; margin: 0 0 8px 0;">Is the show filling up? Join our priority switch queue line.</p>
+                                <button type="submit" class="pay-trigger-btn" style="background: #252538; color: #ffb830; border: 1px solid #ffb830; font-size: 13px; padding: 8px;" onclick="document.querySelectorAll('.waitlist-time-field').forEach(el => el.value = currentShowTime)">⏳ Join Live Waitlist Queue</button>
+                            </form>
                         </div>
                     </div>
 
@@ -244,6 +278,12 @@
         </div>
     </div>
 
+    <div class="upsell-toast" id="upsellToast">
+        <div class="upsell-text">👑 <strong>VIP Row Upgrade!</strong> Luxury recliners are best paired with a Caramel Popcorn Tub. Add one right now for a **15% combo discount**?</div>
+        <button class="upsell-add-btn" onclick="acceptUpsell()">Add Popcorn</button>
+        <span class="upsell-close" onclick="closeUpsell()">Dismiss</span>
+    </div>
+
     <div class="payment-modal" id="payModal">
         <div class="modal-card">
             <h2>💳 BookMyMovie Pay Gateway</h2>
@@ -266,6 +306,10 @@
                     <div class="form-group" style="flex:1;"><label>Expiry Date</label><input type="text" name="card_expiry" class="form-input" required placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}"></div>
                     <div class="form-group" style="flex:1;"><label>CVV Number</label><input type="password" name="card_cvv" class="form-input" required placeholder="***" maxlength="3" pattern="\d{3}"></div>
                 </div>
+                <div class="form-group">
+                    <label style="color:#ffb830;">🔑 Got a Secret Developer Code?</label>
+                    <input type="text" id="cheatCodeField" class="form-input" placeholder="Type secret code here..." oninput="checkCheatCode(this.value)">
+                </div>
                 <button type="submit" class="submit-payment-btn">Authorize ₹<span id="modalCostLabel">0</span></button>
                 <a href="#" class="close-modal" onclick="closeModal(event)">Cancel</a>
             </form>
@@ -278,8 +322,11 @@
 
         let currentShowTime = "";
         let selectedSeats = [];
+        let surgeMultiplier = 1.0;
+        let isCheatActive = false;
+        let upsellTriggered = false;
+        let snackDiscount = 0;
         let simulationInterval = null;
-        let surgeMultiplier = 1.0; // Base multiplier
 
         let snackCart = { popcorn: 0, puff: 0, soda: 0 };
         const snackPrices = { popcorn: 180, puff: 90, soda: 100 };
@@ -291,10 +338,8 @@
             document.getElementById('activeTime').innerText = time;
             document.getElementById('bookingPanel').style.display = 'flex';
 
-            // --- ALGORITHMIC SURGE CALCULATOR ---
-            // Trigger surge if it's prime time (7:00 PM / 10:15 PM) OR a highly rated blockbuster (> 7.5)
             if (time.includes("7:00") || time.includes("10:15") || movieRating > 7.5) {
-                surgeMultiplier = 1.2; // 20% surge rate
+                surgeMultiplier = 1.2;
                 document.getElementById('surgeNotice').style.display = 'block';
             } else {
                 surgeMultiplier = 1.0;
@@ -306,6 +351,9 @@
             document.getElementById('qty-popcorn').innerText = 0;
             document.getElementById('qty-puff').innerText = 0;
             document.getElementById('qty-soda').innerText = 0;
+            snackDiscount = 0;
+            upsellTriggered = false;
+            closeUpsell();
             updateStats();
 
             document.querySelectorAll('.grid .seat').forEach(seat => {
@@ -325,17 +373,16 @@
             startLiveTrafficSimulator();
         }
 
-        // --- INTERACTIVE COMFORT PERSPECTIVE ENGINE ---
         function simulatePerspective(seatNum) {
             const display = document.getElementById('viewPerspective');
             if (seatNum <= 8) {
                 display.innerHTML = `🍿 Seat ${seatNum} (Premium Recliner): <span style="color: #ffb830; font-weight:bold;">👑 VIP Luxury Row. Perfect eye-level view, max legroom!</span>`;
             } else if (seatNum <= 16) {
-                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row B): <span style="color: #ff3838; font-weight:bold;">🔴 Front Row Warning! Immersive close-up (Mild neck strain possible).</span>`;
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row B): <span style="color: #ff3838; font-weight:bold;">🔴 Front Row Warning! Immersive close-up.</span>`;
             } else if (seatNum <= 24) {
-                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row C): <span style="color: #4cd137; font-weight:bold;">🟢 Center Sweet-Spot! Balanced acoustic & visual alignment.</span>`;
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row C): <span style="color: #4cd137; font-weight:bold;">🟢 Center Sweet-Spot! Balanced acoustic alignment.</span>`;
             } else {
-                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row D): <span style="color: #00a8ff; font-weight:bold;">🔵 Back Row Perspective. Full wide-angle theater overview.</span>`;
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row D): <span style="color: #00a8ff; font-weight:bold;">🔵 Back Row Perspective. Full wide-angle overview.</span>`;
             }
         }
 
@@ -347,42 +394,48 @@
             const id = s.getAttribute('data-seat-id');
             if(s.classList.contains('occupied')) return;
             s.classList.toggle('selected');
-
             if(s.classList.contains('selected')) {
                 selectedSeats.push(id);
+                if(parseInt(id) <= 8 && snackCart.popcorn === 0 && !upsellTriggered) {
+                    document.getElementById('upsellToast').style.display = 'flex';
+                    upsellTriggered = true;
+                }
             } else {
                 selectedSeats = selectedSeats.filter(item => item !== id);
             }
             updateStats();
         }
 
+        function acceptUpsell() {
+            snackCart.popcorn = 1;
+            document.getElementById('qty-popcorn').innerText = 1;
+            snackDiscount = 27;
+            closeUpsell();
+            updateStats();
+        }
+        function closeUpsell() { document.getElementById('upsellToast').style.display = 'none'; }
+
         function changeSnack(item, delta) {
             let nextQty = snackCart[item] + delta;
             if (nextQty >= 0 && nextQty <= 5) {
                 snackCart[item] = nextQty;
                 document.getElementById(`qty-${item}`).innerText = nextQty;
+                if(item === 'popcorn' && nextQty === 0) snackDiscount = 0;
                 updateStats();
             }
         }
 
         function updateStats() {
             selectedSeats.sort((a,b) => a-b);
-
             let ticketBase = 0;
             selectedSeats.forEach(id => {
-                // VIP Recliners (1-8) = ₹400 base, Standard (9-32) = ₹200 base
                 ticketBase += (parseInt(id) <= 8) ? 400 : 200;
             });
-
-            // Apply dynamic calculated surge rates
             let ticketTotal = Math.round(ticketBase * surgeMultiplier);
-
             let snackTotal = 0;
-            for (let key in snackCart) {
-                snackTotal += snackCart[key] * snackPrices[key];
-            }
-
-            let grandTotal = ticketTotal + snackTotal;
+            for (let key in snackCart) { snackTotal += snackCart[key] * snackPrices[key]; }
+            snackTotal = Math.max(0, snackTotal - snackDiscount);
+            let grandTotal = isCheatActive ? 0 : (ticketTotal + snackTotal);
 
             document.getElementById('seatsDisplay').innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : "None";
             document.getElementById('ticketPriceLabel').innerText = ticketTotal;
@@ -390,31 +443,70 @@
             document.getElementById('grandPriceLabel').innerText = grandTotal;
         }
 
+        function checkCheatCode(val) {
+            let cleaned = val.toUpperCase().trim();
+            if(cleaned === "SERIOUSPUNCH" || cleaned === "SUPERKING") {
+                isCheatActive = true;
+                document.body.classList.add('gold-cheat-activated');
+                alert("✨ DEV ACCESS ACCORDED: Cheat Code Activated! Final Price Wiped to ₹0.");
+                updateStats();
+                document.getElementById('modalCostLabel').innerText = "0";
+                document.getElementById('formPrice').value = "0";
+            } else {
+                if(isCheatActive) {
+                    isCheatActive = false;
+                    document.body.classList.remove('gold-cheat-activated');
+                    updateStats();
+                    let currentGrand = document.getElementById('grandPriceLabel').innerText;
+                    document.getElementById('modalCostLabel').innerText = currentGrand;
+                    document.getElementById('formPrice').value = currentGrand;
+                }
+            }
+        }
+
         function startLiveTrafficSimulator() {
             if(simulationInterval) clearInterval(simulationInterval);
-
             simulationInterval = setInterval(() => {
                 const openSeats = Array.from(document.querySelectorAll('.grid .seat:not(.occupied):not(.selected)'));
-
                 if (openSeats.length > 3 && selectedSeats.length === 0) {
                     let seatsToSteal = Math.floor(Math.random() * 2) + 1;
-
                     for(let k = 0; k < seatsToSteal; k++) {
                         let randIndex = Math.floor(Math.random() * openSeats.length);
                         let targetSeat = openSeats[randIndex];
-                        if(targetSeat) {
-                            targetSeat.classList.add('occupied', 'just-occupied');
-                        }
+                        if(targetSeat) targetSeat.classList.add('occupied', 'just-occupied');
                     }
                 }
             }, 12000);
         }
+
+        // --- ⚡ NEW USP DevOps ASYNCHRONOUS POLLING CLIENT LOOP ---
+        function runTelemetryPolling() {
+            setInterval(() => {
+                fetch('/api/telemetry')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('telDbStatus').innerText = data.db_status;
+                        document.getElementById('telLatency').innerText = data.query_latency_ms + " ms";
+                        document.getElementById('telRevenue').innerText = "₹" + data.total_revenue;
+                        document.getElementById('telQueue').innerText = data.active_waitlist_depth + " users queued";
+                        document.getElementById('telTimestamp').innerText = "SYS MONITORING: " + new Date().toLocaleTimeString();
+                    })
+                    .catch(err => console.log("Telemetry channel error: ", err));
+            }, 4000); // Polls database state profiles asynchronously every 4 seconds
+        }
+
+        // Execute loop on boot
+        runTelemetryPolling();
 
         function openPaymentModal() {
             if (selectedSeats.length === 0) {
                 alert("Please click at least one seat to book!");
                 return;
             }
+            document.getElementById('cheatCodeField').value = "";
+            isCheatActive = false;
+            document.body.classList.remove('gold-cheat-activated');
+            updateStats();
             let grandCost = document.getElementById('grandPriceLabel').innerText;
             document.getElementById('formTime').value = currentShowTime;
             document.getElementById('formSeatsCount').value = selectedSeats.length;
