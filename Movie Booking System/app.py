@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
+from datetime import datetime
 
 app = Flask(__name__, template_folder=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates'))
 app.secret_key = 'super_secret_cinema_key'
@@ -27,64 +28,30 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # Clean rebuild of bookings architecture
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS bookings (booking_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, movie_title VARCHAR(255), show_time VARCHAR(50), seats_count INT, seats_list TEXT, booking_token VARCHAR(100), total_price INT, booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP);")
+
+    # FORCE RESET REVIEWS TABLE TO FIX UPDATE ERROR
+    cursor.execute("DROP TABLE IF EXISTS reviews;")
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS bookings (
-            booking_id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT,
+        CREATE TABLE reviews (
+            review_id INT AUTO_INCREMENT PRIMARY KEY,
             movie_title VARCHAR(255),
-            show_time VARCHAR(50),
-            seats_count INT,
-            seats_list TEXT,
-            booking_token VARCHAR(100),
-            total_price INT,
-            booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            user_email VARCHAR(255),
+            rating INT,
+            comment TEXT,
+            likes INT DEFAULT 0,
+            dislikes INT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
-    cursor.execute("SHOW COLUMNS FROM movies LIKE 'description';")
-    if not cursor.fetchone():
-        cursor.execute("ALTER TABLE movies ADD COLUMN description TEXT;")
-    cursor.execute("SHOW COLUMNS FROM movies LIKE 'age_rating';")
-    if not cursor.fetchone():
-        cursor.execute("ALTER TABLE movies ADD COLUMN age_rating VARCHAR(50);")
+
     conn.commit()
     cursor.close()
     conn.close()
-
-
-def sync_live_movies():
-    conn = None;
-    cursor = None
-    try:
-        url = "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1"
-        headers = {"accept": "application/json", "Authorization": f"Bearer {TMDB_TOKEN}"}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            movie_data = response.json().get('results', [])
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
-            cursor.execute("TRUNCATE TABLE movies;")
-            cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
-
-            ratings_pool = ['U/A 13+', 'A', 'U', 'PG-13']
-            for movie in movie_data[:10]:
-                title = movie['title']
-                rating = round(movie['vote_average'], 1)
-                raw_path = movie.get('poster_path')
-                poster_url = f"https://image.tmdb.org/t/p/w500{raw_path}" if raw_path else ""
-                description = movie.get('overview', 'No summary available.')
-                age_rating = random.choice(ratings_pool)
-
-                cursor.execute(
-                    "INSERT INTO movies (title, rating, poster_path, description, age_rating) VALUES (%s, %s, %s, %s, %s)",
-                    (title, rating, poster_url, description, age_rating)
-                )
-            conn.commit()
-    except Exception as e:
-        print(e)
-    finally:
-        if cursor is not None: cursor.close()
-        if conn is not None: conn.close()
+    print("Database Core Tables mapped and verified successfully!")
 
 
 @app.route('/')
@@ -124,21 +91,96 @@ def book_movie(movie_title):
     conn = None;
     cursor = None;
     movie = None;
-    past_bookings = []
+    past_bookings = [];
+    movie_reviews = []
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM movies WHERE title = %s", (movie_title,))
         movie = cursor.fetchone()
+
         cursor.execute("SELECT show_time, seats_list FROM bookings WHERE movie_title = %s", (movie_title,))
         past_bookings = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM reviews WHERE movie_title = %s ORDER BY created_at DESC", (movie_title,))
+        movie_reviews = cursor.fetchall()
     except Exception as e:
         print(e)
     finally:
         if cursor is not None: cursor.close()
         if conn is not None: conn.close()
     if not movie: return redirect('/')
-    return render_template('book.html', movie=movie, past_bookings=past_bookings)
+    return render_template('book.html', movie=movie, past_bookings=past_bookings, reviews=movie_reviews)
+
+
+@app.route('/submit-review', methods=['POST'])
+def submit_review():
+    if 'user_id' not in session: return redirect('/')
+    movie_title = request.form.get('movie_title')
+    rating = request.form.get('rating')
+    comment = request.form.get('comment', '').strip()
+    user_email = session.get('email')
+
+    if not rating or not comment:
+        flash("❌ Both comment text and star ratings are mandatory!", "error")
+        return redirect(url_for('book_movie', movie_title=movie_title))
+
+    conn = None;
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO reviews (movie_title, user_email, rating, comment) VALUES (%s, %s, %s, %s)",
+            (movie_title, user_email, rating, comment)
+        )
+        conn.commit()
+        flash("✅ Review successfully added to discussion hub!", "success")
+    except Exception as e:
+        print(f"CRITICAL REVIEW SAVE ERROR: {e}")
+        flash(f"❌ Database failed to save review: {e}", "error")
+    finally:
+        if cursor is not None: cursor.close()
+        if conn is not None: conn.close()
+    return redirect(url_for('book_movie', movie_title=movie_title))
+
+
+@app.route('/like-review/<int:review_id>', methods=['POST'])
+def like_review(review_id):
+    if 'user_id' not in session: return redirect('/')
+    movie_title = request.form.get('movie_title')
+    conn = None;
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE reviews SET likes = likes + 1 WHERE review_id = %s", (review_id,))
+        conn.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        if cursor is not None: cursor.close()
+        if conn is not None: conn.close()
+    return redirect(url_for('book_movie', movie_title=movie_title))
+
+
+@app.route('/dislike-review/<int:review_id>', methods=['POST'])
+def dislike_review(review_id):
+    if 'user_id' not in session: return redirect('/')
+    movie_title = request.form.get('movie_title')
+    conn = None;
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE reviews SET dislikes = dislikes + 1 WHERE review_id = %s", (review_id,))
+        conn.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        if cursor is not None: cursor.close()
+        if conn is not None: conn.close()
+    return redirect(url_for('book_movie', movie_title=movie_title))
 
 
 @app.route('/process-payment', methods=['POST'])
@@ -149,6 +191,31 @@ def process_payment():
     seats_count = int(request.form.get('seats_count', 0))
     seats_list = request.form.get('seats_list', '').strip()
     total_price = int(request.form.get('total_price', 0))
+
+    card_name = request.form.get('card_name', '').strip()
+    card_num = request.form.get('card_num', '').replace(" ", "")
+    expiry_input = request.form.get('card_expiry', '').strip()
+    cvv = request.form.get('card_cvv', '').strip()
+
+    if not card_name or not card_num or not expiry_input or not cvv:
+        flash("❌ All payment inputs are mandatory!", "error")
+        return redirect(url_for('book_movie', movie_title=movie_title))
+    if not re.match(r"^\d{16}$", card_num) or not re.match(r"^\d{3}$", cvv):
+        flash("❌ Invalid Card or CVV length formatting.", "error")
+        return redirect(url_for('book_movie', movie_title=movie_title))
+    if not re.match(r"^(0[1-9]|1[0-2])\/\d{2}$", expiry_input):
+        flash("❌ Expiry format must explicitly be MM/YY.", "error")
+        return redirect(url_for('book_movie', movie_title=movie_title))
+
+    try:
+        exp_month, exp_year = map(int, expiry_input.split('/'))
+        exp_year += 2000
+        current_date = datetime.now()
+        if (exp_year < current_date.year) or (exp_year == current_date.year and exp_month < current_date.month):
+            flash("❌ Payment Declined: This Credit Card has expired!", "error")
+            return redirect(url_for('book_movie', movie_title=movie_title))
+    except Exception:
+        return redirect(url_for('book_movie', movie_title=movie_title))
 
     booking_token = f"BKM-{random.randint(100000, 999999)}-{random.choice(['X', 'Z', 'Y'])}"
     conn = None;
@@ -164,8 +231,7 @@ def process_payment():
         conn.commit()
         return redirect(url_for('receipt', booking_id=new_id))
     except Exception as e:
-        print(e)
-        return redirect('/')
+        print(e); return redirect('/')
     finally:
         if cursor is not None: cursor.close()
         if conn is not None: conn.close()
@@ -211,7 +277,6 @@ def history():
     return render_template('history.html', email=session.get('email'), bookings=items)
 
 
-# --- NEW TICKET REFUND CORE CONTROLLER ---
 @app.route('/refund/<int:booking_id>', methods=['POST'])
 def refund_booking(booking_id):
     if 'user_id' not in session: return redirect('/')
@@ -220,12 +285,11 @@ def refund_booking(booking_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Ensure users can only drop their own reservations
         cursor.execute("DELETE FROM bookings WHERE booking_id = %s AND user_id = %s", (booking_id, session['user_id']))
         conn.commit()
         flash("Ticket successfully canceled and fully refunded!", "success")
     except Exception as e:
-        print(f"Refund error: {e}")
+        print(e)
     finally:
         if cursor is not None: cursor.close()
         if conn is not None: conn.close()
@@ -283,5 +347,4 @@ def logout():
 
 if __name__ == '__main__':
     init_db()
-    sync_live_movies()
     app.run(debug=True)

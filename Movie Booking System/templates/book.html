@@ -6,7 +6,8 @@
     <title>Book Tickets - {{ movie.title }}</title>
     <style>
         body { background-color: #0d0d13; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; }
-        .container { max-width: 900px; margin: 0 auto; display: flex; gap: 40px; background: #151522; padding: 30px; border-radius: 12px; }
+        .main-layout { max-width: 1150px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+        .container { display: flex; gap: 40px; background: #151522; padding: 30px; border-radius: 12px; border: 1px solid #1f1f2e; position: relative; }
         .poster { width: 300px; height: 440px; object-fit: cover; border-radius: 8px; }
         .details { flex: 1; }
         .rating-row { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
@@ -15,29 +16,69 @@
         .plot { color: #a0a0b0; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
         .section-title { font-size: 14px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
 
+        /* Neon Surge Pricing Flashing Banner */
+        .surge-banner { display: none; background: linear-gradient(90deg, #ff9900, #ff3838); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 20px; animation: pulse 1.5s infinite; width: fit-content; letter-spacing: 0.5px; }
+        @keyframes pulse { 0% { opacity: 0.85; } 50% { opacity: 1; box-shadow: 0 0 15px rgba(255,56,56,0.5); } 100% { opacity: 0.85; } }
+
+        .flash-err { background: #ff3838; color: white; padding: 12px; border-radius: 6px; margin-bottom: 25px; font-weight: bold; list-style: none; }
+
         .time-slots { display: flex; gap: 15px; margin-bottom: 30px; }
         .time-btn { background: #252538; color: white; border: 1px solid #35354a; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .time-btn.selected { background: #ff3838; border-color: #ff3838; }
 
-        .seating-section { display: none; border-top: 2px solid #252538; padding-top: 25px; }
-        .screen-container { text-align: center; margin: 0 auto 30px auto; width: 75%; }
+        .booking-workspace { display: flex; gap: 30px; margin-top: 20px; border-top: 2px solid #252538; padding-top: 25px; }
+        .seating-section { flex: 1.4; }
+        .snack-section { flex: 1; background: #1a1a2e; border: 1px solid #252538; padding: 20px; border-radius: 10px; height: fit-content; }
+
+        .screen-container { text-align: center; margin: 0 auto 20px auto; width: 85%; }
         .screen-bar { background: #e2e2e2; height: 6px; border-radius: 4px; box-shadow: 0 0 12px rgba(255,255,255,0.6); margin-bottom: 8px; }
         .screen-text { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; }
 
-        .legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; font-size: 13px; }
+        /* Row Perspective Live Alert Box */
+        .view-preview-box { background: #0d0d13; border: 1px dashed #35354a; border-radius: 6px; padding: 10px; text-align: center; font-size: 13px; color: #a0a0b0; margin-bottom: 20px; font-weight: 500; min-height: 20px; }
+
+        .legend { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; font-size: 12px; }
         .legend-item { display: flex; align-items: center; gap: 6px; }
 
         .grid { display: grid; grid-template-columns: repeat(8, 40px); gap: 10px; justify-content: center; margin-bottom: 25px; }
-        .seat { height: 38px; background: #252538; border: 1px solid #35354a; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #a0a0c0; }
-
-        /* Pricing Category Tiers Layout Classes */
+        .seat { height: 38px; background: #252538; border: 1px solid #35354a; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #a0a0c0; transition: all 0.2s ease; }
         .seat.recliner { border-color: #ffb830; background: #2a2015; color: #ffb830; font-weight: bold; }
         .seat.selected { background: #4cd137 !important; border-color: #4cd137 !important; color: white !important; }
         .seat.occupied { background: #3a3a4f !important; border-color: #222 !important; color: #ff3838 !important; cursor: not-allowed; opacity: 0.3; pointer-events: none; text-decoration: line-through; }
 
-        .checkout-box { display: flex; justify-content: space-between; align-items: center; background: #1f1f32; padding: 15px; border-radius: 8px; }
-        .pay-trigger-btn { background: #4cd137; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .seat.just-occupied { animation: ticketFlash 0.8s ease; }
+        @keyframes ticketFlash { 0% { background: #ff3838; transform: scale(1.1); } 100% { background: #3a3a4f; transform: scale(1); } }
+
+        .snack-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #252538; }
+        .snack-item:last-child { border: none; }
+        .snack-info h4 { margin: 0; font-size: 14px; color: white; }
+        .snack-info p { margin: 3px 0 0 0; font-size: 12px; color: #ffb830; font-weight: bold; }
+        .snack-ctrls { display: flex; align-items: center; gap: 10px; }
+        .snack-btn { background: #252538; color: white; border: 1px solid #35354a; border-radius: 4px; width: 28px; height: 28px; font-weight: bold; cursor: pointer; }
+        .snack-qty { font-size: 14px; font-weight: bold; width: 15px; text-align: center; }
+
+        .checkout-box { display: flex; flex-direction: column; gap: 12px; background: #1f1f32; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .checkout-row { display: flex; justify-content: space-between; font-size: 14px; color: #a0a0b0; }
+        .grand-total { border-top: 1px dashed #35354a; padding-top: 10px; margin-top: 5px; font-size: 18px; color: white; }
+        .pay-trigger-btn { background: #4cd137; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; text-align: center; margin-top: 5px; }
         .back-link { display: inline-block; color: #a0a0b0; text-decoration: none; margin-bottom: 20px; }
+
+        .review-section { background: #151522; padding: 30px; border-radius: 12px; border: 1px solid #1f1f2e; }
+        .review-form { margin-bottom: 30px; background: #1f1f32; padding: 20px; border-radius: 8px; border: 1px solid #252538; }
+        .review-input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .select-input { background: #252538; color: white; border: 1px solid #35354a; padding: 10px; border-radius: 6px; font-size: 14px; }
+        .textarea-input { flex: 1; background: #252538; color: white; border: 1px solid #35354a; padding: 10px; border-radius: 6px; resize: none; height: 50px; }
+        .review-submit-btn { background: #ff3838; color: white; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        details.reviews-accordion { background: #1a1a2e; border: 1px solid #252538; border-radius: 8px; padding: 15px; cursor: pointer; }
+        details.reviews-accordion summary { font-weight: bold; font-size: 16px; color: #ff3838; user-select: none; }
+        .accordion-content { margin-top: 15px; cursor: default; }
+        .review-card { background: #151522; padding: 15px; border-radius: 6px; border-left: 4px solid #ff3838; margin-bottom: 15px; }
+        .review-meta { display: flex; justify-content: space-between; font-size: 13px; color: #a0a0b0; margin-bottom: 6px; }
+        .review-rating-stars { color: #ffb830; font-weight: bold; }
+        .review-text { font-size: 14px; color: #e2e2e2; margin: 0 0 10px 0; }
+        .vote-actions { display: flex; gap: 15px; }
+        .vote-btn { background: #252538; color: #a0a0b0; border: 1px solid #35354a; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
 
         .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 500; }
         .modal-card { background: #151522; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #35354a; }
@@ -52,50 +93,154 @@
 </head>
 <body>
 
-    <a href="/" class="back-link">← Cancel and Go Back</a>
+    <div class="main-layout">
+        <a href="/" class="back-link">← Cancel and Go Back</a>
 
-    <div class="container">
-        <img class="poster" src="{{ movie.poster_path }}" alt="Poster">
-        <div class="details">
-            <h1>{{ movie.title }}</h1>
-            <div class="rating-row">
-                <span class="age-badge">{{ movie.age_rating }}</span>
-                <span class="rating">⭐ {{ movie.rating }} / 10</span>
+        {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+                <div class="flash-err">
+                    {% for err in errors %}{{ err }}{% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="container">
+            <img class="poster" src="{{ movie.poster_path }}" alt="Poster">
+            <div class="details">
+                <h1>{{ movie.title }}</h1>
+                <div class="rating-row">
+                    <span class="age-badge">{{ movie.age_rating }}</span>
+                    <span class="rating">⭐ {{ movie.rating }} / 10</span>
+                </div>
+                <p class="plot">{{ movie.description }}</p>
+
+                <div class="section-title">Select Show Time</div>
+                <div class="time-slots">
+                    <button class="time-btn" onclick="selectTime(this, '12:00 PM')">12:00 PM</button>
+                    <button class="time-btn" onclick="selectTime(this, '03:30 PM')">03:30 PM</button>
+                    <button class="time-btn" onclick="selectTime(this, '07:00 PM')">07:00 PM (Prime)</button>
+                    <button class="time-btn" onclick="selectTime(this, '10:15 PM')">10:15 PM (Prime)</button>
+                </div>
+
+                <div class="booking-workspace" id="bookingPanel" style="display: none;">
+
+                    <div class="seating-section">
+                        <div class="section-title">Select Seats (<span id="activeTime"></span>)</div>
+
+                        <div class="surge-banner" id="surgeNotice">🔥 Prime-Time Surge Pricing Active (+20% Demand Increase)</div>
+
+                        <div class="view-preview-box" id="viewPerspective">💡 Hover over or click any seat number to test screen perspective comfort.</div>
+
+                        <div class="screen-container">
+                            <div class="screen-bar"></div>
+                            <div class="screen-text">SCREEN THIS WAY</div>
+                        </div>
+
+                        <div class="legend">
+                            <div class="legend-item"><div style="width:12px;height:12px;background:#2a2015;border:1px solid #ffb830;border-radius:3px;"></div> Recliner</div>
+                            <div class="legend-item"><div style="width:12px;height:12px;background:#252538;border:1px solid #35354a;border-radius:3px;"></div> Normal</div>
+                        </div>
+
+                        <div class="grid">
+                            {% for i in range(1, 33) %}
+                                <div class="seat {% if i <= 8 %}recliner{% endif %}"
+                                     data-seat-id="{{ i }}"
+                                     onclick="toggleSeat(this)"
+                                     onmouseenter="simulatePerspective({{ i }})"
+                                     onmouseleave="resetPerspective()">{{ i }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="snack-section">
+                        <h3 style="margin-top: 0; color: #ff3838; font-size: 16px; text-transform: uppercase;">🍿 Food & Beverages Counter</h3>
+
+                        <div class="snack-item">
+                            <div class="snack-info"><h4>Caramel Popcorn Tub</h4><p>₹180</p></div>
+                            <div class="snack-ctrls">
+                                <button class="snack-btn" onclick="changeSnack('popcorn', -1)">-</button>
+                                <span class="snack-qty" id="qty-popcorn">0</span>
+                                <button class="snack-btn" onclick="changeSnack('popcorn', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="snack-item">
+                            <div class="snack-info"><h4>Crispy Baked Veg Puff</h4><p>₹90</p></div>
+                            <div class="snack-ctrls">
+                                <button class="snack-btn" onclick="changeSnack('puff', -1)">-</button>
+                                <span class="snack-qty" id="qty-puff">0</span>
+                                <button class="snack-btn" onclick="changeSnack('puff', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="snack-item">
+                            <div class="snack-info"><h4>Ice Cold Fountain Soda</h4><p>₹100</p></div>
+                            <div class="snack-ctrls">
+                                <button class="snack-btn" onclick="changeSnack('soda', -1)">-</button>
+                                <span class="snack-qty" id="qty-soda">0</span>
+                                <button class="snack-btn" onclick="changeSnack('soda', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="checkout-box">
+                            <div class="checkout-row"><span>Selected Seats:</span><strong id="seatsDisplay">None</strong></div>
+                            <div class="checkout-row"><span>Ticket Base Cost:</span><strong>₹<span id="ticketPriceLabel">0</span></strong></div>
+                            <div class="checkout-row"><span>Snacks Total:</span><strong>₹<span id="snackPriceLabel">0</span></strong></div>
+                            <div class="checkout-row grand-total" style="font-weight: bold; color: #4cd137;"><span>Grand Total:</span><span>₹<span id="grandPriceLabel">0</span></span></div>
+                            <button class="pay-trigger-btn" onclick="openPaymentModal()">Proceed to Checkout</button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <p class="plot">{{ movie.description }}</p>
+        </div>
 
-            <div class="section-title">Select Show Time</div>
-            <div class="time-slots">
-                <button class="time-btn" onclick="selectTime(this, '12:00 PM')">12:00 PM</button>
-                <button class="time-btn" onclick="selectTime(this, '03:30 PM')">03:30 PM</button>
-                <button class="time-btn" onclick="selectTime(this, '07:00 PM')">07:00 PM</button>
-                <button class="time-btn" onclick="selectTime(this, '10:15 PM')">10:15 PM</button>
-            </div>
-
-            <div class="seating-section" id="seatingCard">
-                <div class="section-title">Select Seats (<span id="activeTime"></span>)</div>
-
-                <div class="screen-container">
-                    <div class="screen-bar"></div>
-                    <div class="screen-text">SCREEN THIS WAY</div>
+        <div class="review-section">
+            <h2 style="margin-top: 0; margin-bottom: 20px;">💬 Movie Discussion Hub</h2>
+            <form action="/submit-review" method="POST" class="review-form">
+                <input type="hidden" name="movie_title" value="{{ movie.title }}">
+                <div class="review-input-row">
+                    <select name="rating" class="select-input" required>
+                        <option value="" disabled selected>Select Stars</option>
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                        <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                        <option value="3">⭐⭐⭐ (3/5)</option>
+                        <option value="2">⭐⭐ (2/5)</option>
+                        <option value="1">⭐ (1/5)</option>
+                    </select>
+                    <textarea name="comment" class="textarea-input" placeholder="Share your review text about this screening..." required></textarea>
+                    <button type="submit" class="review-submit-btn">Post Review</button>
                 </div>
+            </form>
 
-                <div class="legend">
-                    <div class="legend-item"><div style="width:14px;height:14px;background:#2a2015;border:1px solid #ffb830;border-radius:3px;"></div> Recliner (₹400)</div>
-                    <div class="legend-item"><div style="width:14px;height:14px;background:#252538;border:1px solid #35354a;border-radius:3px;"></div> Normal (₹200)</div>
+            <details class="reviews-accordion">
+                <summary>👇 View User Reviews ({{ reviews | length }})</summary>
+                <div class="accordion-content">
+                    {% if reviews %}
+                        {% for r in reviews %}
+                        <div class="review-card">
+                            <div class="review-meta">
+                                <span>👤 {{ r.user_email }}</span>
+                                <span class="review-rating-stars">{% for star in range(r.rating) %}⭐{% endfor %}</span>
+                            </div>
+                            <p class="review-text">{{ r.comment }}</p>
+                            <div class="vote-actions">
+                                <form action="/like-review/{{ r.review_id }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="movie_title" value="{{ movie.title }}">
+                                    <button type="submit" class="vote-btn">👍 Useful ({{ r.likes }})</button>
+                                </form>
+                                <form action="/dislike-review/{{ r.review_id }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="movie_title" value="{{ movie.title }}">
+                                    <button type="submit" class="vote-btn">👎 Poor ({{ r.dislikes }})</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #a0a0b0; text-align: center; margin: 10px 0;">No reviews posted yet.</p>
+                    {% endif %}
                 </div>
-
-                <div class="grid">
-                    {% for i in range(1, 33) %}
-                        <!-- Flag Row 1 (1-8) with recliner design attributes -->
-                        <div class="seat {% if i <= 8 %}recliner{% endif %}" data-seat-id="{{ i }}" onclick="toggleSeat(this)">{{ i }}</div>
-                    {% endfor %}
-                </div>
-                <div class="checkout-box">
-                    <div>Selected: <strong id="seatsDisplay">None</strong> | Total: <strong>₹<span id="price">0</span></strong></div>
-                    <button class="pay-trigger-btn" onclick="openPaymentModal()">Proceed to Payment</button>
-                </div>
-            </div>
+            </details>
         </div>
     </div>
 
@@ -111,15 +256,15 @@
 
                 <div class="form-group">
                     <label>Cardholder Name</label>
-                    <input type="text" class="form-input" required placeholder="Vijay Anand">
+                    <input type="text" name="card_name" class="form-input" required placeholder="Vijay Anand" pattern="[a-zA-Z\s]+">
                 </div>
                 <div class="form-group">
                     <label>Credit Card Number</label>
-                    <input type="text" class="form-input" required placeholder="4532 7182 9381 0029" maxlength="19">
+                    <input type="text" name="card_num" class="form-input" required placeholder="4532718293810029" maxlength="16" pattern="\d{16}">
                 </div>
                 <div class="row-flex">
-                    <div class="form-group" style="flex:1;"><label>Expiry Date</label><input type="text" class="form-input" required placeholder="MM/YY" maxlength="5"></div>
-                    <div class="form-group" style="flex:1;"><label>CVV Number</label><input type="password" class="form-input" required placeholder="***" maxlength="3"></div>
+                    <div class="form-group" style="flex:1;"><label>Expiry Date</label><input type="text" name="card_expiry" class="form-input" required placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}"></div>
+                    <div class="form-group" style="flex:1;"><label>CVV Number</label><input type="password" name="card_cvv" class="form-input" required placeholder="***" maxlength="3" pattern="\d{3}"></div>
                 </div>
                 <button type="submit" class="submit-payment-btn">Authorize ₹<span id="modalCostLabel">0</span></button>
                 <a href="#" class="close-modal" onclick="closeModal(event)">Cancel</a>
@@ -129,20 +274,42 @@
 
     <script>
         const historicalLog = {{ past_bookings | tojson }};
+        const movieRating = parseFloat("{{ movie.rating }}");
+
         let currentShowTime = "";
         let selectedSeats = [];
+        let simulationInterval = null;
+        let surgeMultiplier = 1.0; // Base multiplier
+
+        let snackCart = { popcorn: 0, puff: 0, soda: 0 };
+        const snackPrices = { popcorn: 180, puff: 90, soda: 100 };
 
         function selectTime(btn, time) {
             document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             currentShowTime = time;
             document.getElementById('activeTime').innerText = time;
-            document.getElementById('seatingCard').style.display = 'block';
+            document.getElementById('bookingPanel').style.display = 'flex';
+
+            // --- ALGORITHMIC SURGE CALCULATOR ---
+            // Trigger surge if it's prime time (7:00 PM / 10:15 PM) OR a highly rated blockbuster (> 7.5)
+            if (time.includes("7:00") || time.includes("10:15") || movieRating > 7.5) {
+                surgeMultiplier = 1.2; // 20% surge rate
+                document.getElementById('surgeNotice').style.display = 'block';
+            } else {
+                surgeMultiplier = 1.0;
+                document.getElementById('surgeNotice').style.display = 'none';
+            }
+
             selectedSeats = [];
+            snackCart = { popcorn: 0, puff: 0, soda: 0 };
+            document.getElementById('qty-popcorn').innerText = 0;
+            document.getElementById('qty-puff').innerText = 0;
+            document.getElementById('qty-soda').innerText = 0;
             updateStats();
 
             document.querySelectorAll('.grid .seat').forEach(seat => {
-                seat.classList.remove('selected', 'occupied');
+                seat.classList.remove('selected', 'occupied', 'just-occupied');
             });
 
             historicalLog.forEach(res => {
@@ -154,6 +321,26 @@
                     });
                 }
             });
+
+            startLiveTrafficSimulator();
+        }
+
+        // --- INTERACTIVE COMFORT PERSPECTIVE ENGINE ---
+        function simulatePerspective(seatNum) {
+            const display = document.getElementById('viewPerspective');
+            if (seatNum <= 8) {
+                display.innerHTML = `🍿 Seat ${seatNum} (Premium Recliner): <span style="color: #ffb830; font-weight:bold;">👑 VIP Luxury Row. Perfect eye-level view, max legroom!</span>`;
+            } else if (seatNum <= 16) {
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row B): <span style="color: #ff3838; font-weight:bold;">🔴 Front Row Warning! Immersive close-up (Mild neck strain possible).</span>`;
+            } else if (seatNum <= 24) {
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row C): <span style="color: #4cd137; font-weight:bold;">🟢 Center Sweet-Spot! Balanced acoustic & visual alignment.</span>`;
+            } else {
+                display.innerHTML = `🎬 Seat ${seatNum} (Standard Row D): <span style="color: #00a8ff; font-weight:bold;">🔵 Back Row Perspective. Full wide-angle theater overview.</span>`;
+            }
+        }
+
+        function resetPerspective() {
+            document.getElementById('viewPerspective').innerText = "💡 Hover over or click any seat number to test screen perspective comfort.";
         }
 
         function toggleSeat(s) {
@@ -169,21 +356,58 @@
             updateStats();
         }
 
+        function changeSnack(item, delta) {
+            let nextQty = snackCart[item] + delta;
+            if (nextQty >= 0 && nextQty <= 5) {
+                snackCart[item] = nextQty;
+                document.getElementById(`qty-${item}`).innerText = nextQty;
+                updateStats();
+            }
+        }
+
         function updateStats() {
             selectedSeats.sort((a,b) => a-b);
-            let total = 0;
 
-            // Dynamic Split Pricing Calculation Engine
+            let ticketBase = 0;
             selectedSeats.forEach(id => {
-                if (parseInt(id) <= 8) {
-                    total += 400; // Recliner Premium Charge
-                } else {
-                    total += 200; // Normal Ticket Charge
-                }
+                // VIP Recliners (1-8) = ₹400 base, Standard (9-32) = ₹200 base
+                ticketBase += (parseInt(id) <= 8) ? 400 : 200;
             });
 
+            // Apply dynamic calculated surge rates
+            let ticketTotal = Math.round(ticketBase * surgeMultiplier);
+
+            let snackTotal = 0;
+            for (let key in snackCart) {
+                snackTotal += snackCart[key] * snackPrices[key];
+            }
+
+            let grandTotal = ticketTotal + snackTotal;
+
             document.getElementById('seatsDisplay').innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : "None";
-            document.getElementById('price').innerText = total;
+            document.getElementById('ticketPriceLabel').innerText = ticketTotal;
+            document.getElementById('snackPriceLabel').innerText = snackTotal;
+            document.getElementById('grandPriceLabel').innerText = grandTotal;
+        }
+
+        function startLiveTrafficSimulator() {
+            if(simulationInterval) clearInterval(simulationInterval);
+
+            simulationInterval = setInterval(() => {
+                const openSeats = Array.from(document.querySelectorAll('.grid .seat:not(.occupied):not(.selected)'));
+
+                if (openSeats.length > 3 && selectedSeats.length === 0) {
+                    let seatsToSteal = Math.floor(Math.random() * 2) + 1;
+
+                    for(let k = 0; k < seatsToSteal; k++) {
+                        let randIndex = Math.floor(Math.random() * openSeats.length);
+                        let targetSeat = openSeats[randIndex];
+                        if(targetSeat) {
+                            targetSeat.classList.add('occupied', 'just-occupied');
+                        }
+                    }
+                }
+            }, 12000);
         }
 
         function openPaymentModal() {
@@ -191,12 +415,12 @@
                 alert("Please click at least one seat to book!");
                 return;
             }
-            let finalPrice = document.getElementById('price').innerText;
+            let grandCost = document.getElementById('grandPriceLabel').innerText;
             document.getElementById('formTime').value = currentShowTime;
             document.getElementById('formSeatsCount').value = selectedSeats.length;
             document.getElementById('formSeatsList').value = selectedSeats.join(',');
-            document.getElementById('formPrice').value = finalPrice;
-            document.getElementById('modalCostLabel').innerText = finalPrice;
+            document.getElementById('formPrice').value = grandCost;
+            document.getElementById('modalCostLabel').innerText = grandCost;
             document.getElementById('payModal').style.display = 'flex';
         }
 
