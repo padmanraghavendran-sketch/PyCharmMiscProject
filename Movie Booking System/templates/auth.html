@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Cinemas - Entrance</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1e1e2f 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .auth-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            width: 360px;
+            text-align: center;
+        }
+        h1 {
+            color: #ffd700;
+            margin-bottom: 8px;
+            letter-spacing: 3px;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        p {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-size: 11px;
+            color: #bbb;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #ffd700;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        .btn-frame {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        button {
+            width: 48%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+        .btn-login {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        .btn-signup {
+            background: linear-gradient(45deg, #008CBA, #0077a3);
+            color: white;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .flash-messages {
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            font-size: 13px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <h1>MEGA CINEMAS</h1>
+    <p>Sign up or log in to secure your tickets</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-messages">
+          {{ messages[0] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form id="authForm" method="POST">
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="username@gmail.com" required>
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" placeholder="10-digit mobile number">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <div class="btn-frame">
+            <button type="submit" class="btn-login" onclick="document.getElementById('authForm').action='/login';">LOG IN</button>
+            <button type="submit" class="btn-signup" onclick="document.getElementById('authForm').action='/signup';">SIGN UP</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyMovie - Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0d0d13;
+            --card-bg: #151522;
+            --text-color: #ffffff;
+            --sub-text: #a0a0b0;
+            --border-color: #1f1f2e;
+        }
+        .light-mode {
+            --bg-color: #f4f4f7;
+            --card-bg: #ffffff;
+            --text-color: #1a1a24;
+            --sub-text: #606070;
+            --border-color: #d1d1d6;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px; margin-bottom: 30px; position: relative;
+        }
+        .logo { color: #ff3838; font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Dropdown Profile Container */
+        .profile-area { position: relative; }
+        .user-badge {
+            background: #ff3838; color: white; padding: 8px 16px; border-radius: 20px;
+            font-size: 14px; cursor: pointer; font-weight: bold; user-select: none;
+        }
+        .dropdown-menu {
+            display: none; position: absolute; right: 0; top: 35px; background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: 8px; width: 180px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; overflow: hidden;
+        }
+        .dropdown-menu a, .dropdown-menu button {
+            display: block; width: 100%; text-align: left; background: none; border: none;
+            padding: 12px 16px; color: var(--text-color); text-decoration: none;
+            font-size: 14px; cursor: pointer; box-sizing: border-box;
+        }
+        .dropdown-menu a:hover, .dropdown-menu button:hover { background: #ff3838; color: white; }
+
+        .search-container { display: flex; gap: 10px; max-width: 500px; margin-bottom: 30px; }
+        .search-input {
+            flex: 1; background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 10px 15px; border-radius: 6px; color: var(--text-color); font-size: 15px; outline: none;
+        }
+        .search-btn { background: #ff3838; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .clear-btn { background: var(--border-color); color: var(--sub-text); border: none; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+        .movie-link { text-decoration: none; color: inherit; }
+        .movie-card {
+            background: var(--card-bg); border-radius: 10px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s; position: relative;
+            border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%;
+        }
+        .movie-card:hover { transform: scale(1.03); }
+        .movie-poster { width: 100%; height: 280px; object-fit: cover; }
+        .age-badge {
+            position: absolute; top: 12px; left: 12px; background: rgba(255, 56, 56, 0.9);
+            color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+        }
+        .movie-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .movie-title { font-size: 17px; font-weight: 600; margin: 0 0 6px 0; }
+        .movie-rating { color: #ffb830; font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+        .movie-desc { font-size: 13px; color: var(--sub-text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .alert-bar { background: #ffaa00; color: #111; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">🍿 BookMyMovie</div>
+        <div class="profile-area">
+            <div class="user-badge" onclick="toggleDropdown()">👤 Account Menu</div>
+            <div class="dropdown-menu" id="userDropdown">
+                <a href="/history">📜 Check History</a>
+                <button onclick="toggleTheme()">🌓 Toggle Mode</button>
+                <a href="/logout" style="border-top: 1px solid var(--border-color);">🚪 Sign Out</a>
+            </div>
+        </div>
+    </div>
+
+    {% if is_fallback %}
+        <div class="alert-bar">⚠️ Head's Up: Searched movie is not currently live in theaters! Displaying full list of current releases instead.</div>
+    {% endif %}
+
+    <form action="/" method="GET" class="search-container">
+        <input type="text" name="search" class="search-input" placeholder="Search live movies..." value="{{ search_query }}">
+        <button type="submit" class="search-btn">Search</button>
+        {% if search_query %} <a href="/" class="clear-btn">Clear</a> {% endif %}
+    </form>
+
+    <div class="movie-grid">
+        {% for movie in movies %}
+        <a href="/book/{{ movie.title }}" class="movie-link">
+            <div class="movie-card">
+                <div class="age-badge">{{ movie.age_rating }}</div>
+                <img class="movie-poster" src="{{ movie.poster_path }}" alt="Poster">
+                <div class="movie-info">
+                    <div>
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+                        <div class="movie-rating">⭐ {{ movie.rating }} / 10</div>
+                    </div>
+                    <p class="movie-desc">{{ movie.description }}</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            const menu = document.getElementById('userDropdown');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+        // Load preference
+        if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+
+        // Close window clicks
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-badge')) {
+                document.getElementById('userDropdown').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

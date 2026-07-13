@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Archive History</title>
+    <style>
+        body { background-color: #0d0d13; color: white; font-family: 'Segoe UI', sans-serif; padding: 40px; }
+        .wrapper { max-width: 1050px; margin: 0 auto; background: #151522; padding: 30px; border-radius: 12px; }
+        h1 { margin-top: 0; margin-bottom: 25px; font-size: 24px; border-bottom: 1px solid #252538; padding-bottom: 15px; }
+
+        /* Flash Confirmation Bar */
+        .flash-msg { background: #4cd137; color: white; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #252538; font-size: 14px; }
+        th { background-color: #1f1f32; color: #ff3838; }
+        tr:hover { background: #1c1c2e; }
+        .back-btn { color: #a0a0b0; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .token-lbl { font-family: monospace; color: #ff3838; font-weight: bold; background: #252538; padding: 4px 8px; border-radius: 4px; }
+        .seat-badge { background: #ffb830; color: #111; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+        .qr-mini-btn { background: white; padding: 4px; border-radius: 4px; display: inline-block; cursor: pointer; transition: 0.2s; }
+        .qr-mini-btn:hover { transform: scale(1.1); box-shadow: 0 0 8px white; }
+
+        /* Refund Action Button Elements */
+        .refund-btn { background: #ff3838; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .refund-btn:hover { background: #d02525; }
+
+        /* Lightbox Layout styles */
+        .zoom-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 999; cursor: zoom-out; }
+        .zoom-content { background: white; padding: 30px; border-radius: 16px; }
+        .zoom-content img { width: 320px; height: 320px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="flash-msg">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h1>📜 Ticket Booking History Logs</h1>
+
+        {% if bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Verification ID</th>
+                    <th>Movie Title</th>
+                    <th>Show Time</th>
+                    <th>Seats Locked</th>
+                    <th>Amount</th>
+                    <th>Pass Passport</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in bookings %}
+                <tr>
+                    <td><span class="token-lbl">{{ log.booking_token }}</span></td>
+                    <td><strong>{{ log.movie_title }}</strong></td>
+                    <td>{{ log.show_time }}</td>
+                    <td><span class="seat-badge">#{{ log.seats_list }}</span></td>
+                    <td>₹{{ log.total_price }}</td>
+                    <td>
+                        <div class="qr-mini-btn" onclick="openLightbox('{{ log.booking_token }}')">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=45x45&data=VALID_TICKET_{{ log.booking_token }}" width="45" height="45" alt="QR">
+                        </div>
+                    </td>
+                    <td>
+                        <!-- Dynamic Reverse Transaction Processing Core Form -->
+                        <form action="/refund/{{ log.booking_id }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking and request a refund?');">
+                            <button type="submit" class="refund-btn">Refund Ticket</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p style="color: #a0a0b0; text-align: center; padding: 20px 0;">No reservation logs found on file for this account context.</p>
+        {% endif %}
+    </div>
+
+    <!-- History Screen Zoom Lightbox Container -->
+    <div class="zoom-overlay" id="historyLightbox" onclick="closeLightbox()">
+        <div class="zoom-content" onclick="event.stopPropagation()">
+            <img id="largeQrImg" src="" alt="Enlarged QR">
+        </div>
+    </div>
+
+    <script>
+        function openLightbox(token) {
+            document.getElementById('largeQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=VALID_TICKET_${token}`;
+            document.getElementById('historyLightbox').style.display = 'flex';
+        }
+        function closeLightbox() {
+            document.getElementById('historyLightbox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

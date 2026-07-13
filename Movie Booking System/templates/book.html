@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Tickets - {{ movie.title }}</title>
+    <style>
+        body { background-color: #0d0d13; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; }
+        .container { max-width: 900px; margin: 0 auto; display: flex; gap: 40px; background: #151522; padding: 30px; border-radius: 12px; }
+        .poster { width: 300px; height: 440px; object-fit: cover; border-radius: 8px; }
+        .details { flex: 1; }
+        .rating-row { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+        .age-badge { background: #ff3838; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 14px; }
+        .rating { color: #ffb830; font-size: 18px; font-weight: bold; }
+        .plot { color: #a0a0b0; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        .section-title { font-size: 14px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+
+        .time-slots { display: flex; gap: 15px; margin-bottom: 30px; }
+        .time-btn { background: #252538; color: white; border: 1px solid #35354a; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .time-btn.selected { background: #ff3838; border-color: #ff3838; }
+
+        .seating-section { display: none; border-top: 2px solid #252538; padding-top: 25px; }
+        .screen-container { text-align: center; margin: 0 auto 30px auto; width: 75%; }
+        .screen-bar { background: #e2e2e2; height: 6px; border-radius: 4px; box-shadow: 0 0 12px rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .screen-text { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; }
+
+        .legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+
+        .grid { display: grid; grid-template-columns: repeat(8, 40px); gap: 10px; justify-content: center; margin-bottom: 25px; }
+        .seat { height: 38px; background: #252538; border: 1px solid #35354a; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #a0a0c0; }
+
+        /* Pricing Category Tiers Layout Classes */
+        .seat.recliner { border-color: #ffb830; background: #2a2015; color: #ffb830; font-weight: bold; }
+        .seat.selected { background: #4cd137 !important; border-color: #4cd137 !important; color: white !important; }
+        .seat.occupied { background: #3a3a4f !important; border-color: #222 !important; color: #ff3838 !important; cursor: not-allowed; opacity: 0.3; pointer-events: none; text-decoration: line-through; }
+
+        .checkout-box { display: flex; justify-content: space-between; align-items: center; background: #1f1f32; padding: 15px; border-radius: 8px; }
+        .pay-trigger-btn { background: #4cd137; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .back-link { display: inline-block; color: #a0a0b0; text-decoration: none; margin-bottom: 20px; }
+
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 500; }
+        .modal-card { background: #151522; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #35354a; }
+        .modal-card h2 { margin-top: 0; color: #ffffff; border-bottom: 1px solid #252538; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: #a0a0b0; margin-bottom: 5px; }
+        .form-input { width: 100%; background: #252538; border: 1px solid #35354a; color: white; padding: 10px; border-radius: 6px; box-sizing: border-box; font-size: 15px; outline: none; }
+        .row-flex { display: flex; gap: 15px; }
+        .submit-payment-btn { width: 100%; background: #4cd137; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .close-modal { color: #ff3838; text-align: center; display: block; margin-top: 15px; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-link">← Cancel and Go Back</a>
+
+    <div class="container">
+        <img class="poster" src="{{ movie.poster_path }}" alt="Poster">
+        <div class="details">
+            <h1>{{ movie.title }}</h1>
+            <div class="rating-row">
+                <span class="age-badge">{{ movie.age_rating }}</span>
+                <span class="rating">⭐ {{ movie.rating }} / 10</span>
+            </div>
+            <p class="plot">{{ movie.description }}</p>
+
+            <div class="section-title">Select Show Time</div>
+            <div class="time-slots">
+                <button class="time-btn" onclick="selectTime(this, '12:00 PM')">12:00 PM</button>
+                <button class="time-btn" onclick="selectTime(this, '03:30 PM')">03:30 PM</button>
+                <button class="time-btn" onclick="selectTime(this, '07:00 PM')">07:00 PM</button>
+                <button class="time-btn" onclick="selectTime(this, '10:15 PM')">10:15 PM</button>
+            </div>
+
+            <div class="seating-section" id="seatingCard">
+                <div class="section-title">Select Seats (<span id="activeTime"></span>)</div>
+
+                <div class="screen-container">
+                    <div class="screen-bar"></div>
+                    <div class="screen-text">SCREEN THIS WAY</div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><div style="width:14px;height:14px;background:#2a2015;border:1px solid #ffb830;border-radius:3px;"></div> Recliner (₹400)</div>
+                    <div class="legend-item"><div style="width:14px;height:14px;background:#252538;border:1px solid #35354a;border-radius:3px;"></div> Normal (₹200)</div>
+                </div>
+
+                <div class="grid">
+                    {% for i in range(1, 33) %}
+                        <!-- Flag Row 1 (1-8) with recliner design attributes -->
+                        <div class="seat {% if i <= 8 %}recliner{% endif %}" data-seat-id="{{ i }}" onclick="toggleSeat(this)">{{ i }}</div>
+                    {% endfor %}
+                </div>
+                <div class="checkout-box">
+                    <div>Selected: <strong id="seatsDisplay">None</strong> | Total: <strong>₹<span id="price">0</span></strong></div>
+                    <button class="pay-trigger-btn" onclick="openPaymentModal()">Proceed to Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-modal" id="payModal">
+        <div class="modal-card">
+            <h2>💳 BookMyMovie Pay Gateway</h2>
+            <form action="/process-payment" method="POST">
+                <input type="hidden" name="movie_title" value="{{ movie.title }}">
+                <input type="hidden" name="show_time" id="formTime">
+                <input type="hidden" name="seats_count" id="formSeatsCount">
+                <input type="hidden" name="seats_list" id="formSeatsList">
+                <input type="hidden" name="total_price" id="formPrice">
+
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" class="form-input" required placeholder="Vijay Anand">
+                </div>
+                <div class="form-group">
+                    <label>Credit Card Number</label>
+                    <input type="text" class="form-input" required placeholder="4532 7182 9381 0029" maxlength="19">
+                </div>
+                <div class="row-flex">
+                    <div class="form-group" style="flex:1;"><label>Expiry Date</label><input type="text" class="form-input" required placeholder="MM/YY" maxlength="5"></div>
+                    <div class="form-group" style="flex:1;"><label>CVV Number</label><input type="password" class="form-input" required placeholder="***" maxlength="3"></div>
+                </div>
+                <button type="submit" class="submit-payment-btn">Authorize ₹<span id="modalCostLabel">0</span></button>
+                <a href="#" class="close-modal" onclick="closeModal(event)">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const historicalLog = {{ past_bookings | tojson }};
+        let currentShowTime = "";
+        let selectedSeats = [];
+
+        function selectTime(btn, time) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentShowTime = time;
+            document.getElementById('activeTime').innerText = time;
+            document.getElementById('seatingCard').style.display = 'block';
+            selectedSeats = [];
+            updateStats();
+
+            document.querySelectorAll('.grid .seat').forEach(seat => {
+                seat.classList.remove('selected', 'occupied');
+            });
+
+            historicalLog.forEach(res => {
+                if (res.show_time === time) {
+                    const numbers = res.seats_list.split(',');
+                    numbers.forEach(num => {
+                        const targetSeat = document.querySelector(`.seat[data-seat-id="${num.trim()}"]`);
+                        if(targetSeat) targetSeat.classList.add('occupied');
+                    });
+                }
+            });
+        }
+
+        function toggleSeat(s) {
+            const id = s.getAttribute('data-seat-id');
+            if(s.classList.contains('occupied')) return;
+            s.classList.toggle('selected');
+
+            if(s.classList.contains('selected')) {
+                selectedSeats.push(id);
+            } else {
+                selectedSeats = selectedSeats.filter(item => item !== id);
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            selectedSeats.sort((a,b) => a-b);
+            let total = 0;
+
+            // Dynamic Split Pricing Calculation Engine
+            selectedSeats.forEach(id => {
+                if (parseInt(id) <= 8) {
+                    total += 400; // Recliner Premium Charge
+                } else {
+                    total += 200; // Normal Ticket Charge
+                }
+            });
+
+            document.getElementById('seatsDisplay').innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : "None";
+            document.getElementById('price').innerText = total;
+        }
+
+        function openPaymentModal() {
+            if (selectedSeats.length === 0) {
+                alert("Please click at least one seat to book!");
+                return;
+            }
+            let finalPrice = document.getElementById('price').innerText;
+            document.getElementById('formTime').value = currentShowTime;
+            document.getElementById('formSeatsCount').value = selectedSeats.length;
+            document.getElementById('formSeatsList').value = selectedSeats.join(',');
+            document.getElementById('formPrice').value = finalPrice;
+            document.getElementById('modalCostLabel').innerText = finalPrice;
+            document.getElementById('payModal').style.display = 'flex';
+        }
+
+        function closeModal(e) { e.preventDefault(); document.getElementById('payModal').style.display = 'none'; }
+    </script>
+</body>
+</html>

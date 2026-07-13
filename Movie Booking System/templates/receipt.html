@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Confirmation - BookMyMovie</title>
+    <style>
+        body { background-color: #0d0d13; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .ticket-card { background: #151522; padding: 35px; border-radius: 16px; border: 2px dashed #ff3838; text-align: center; max-width: 420px; width: 100%; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
+        .success-icon { font-size: 50px; color: #4cd137; margin-bottom: 10px; }
+        h1 { margin: 0 0 20px 0; font-size: 24px; color: #fff; }
+        .field { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; border-bottom: 1px dashed #252538; padding-bottom: 6px; }
+        .label { color: #a0a0b0; }
+        .value { font-weight: bold; color: white; }
+        .token-highlight { color: #ff3838; font-size: 18px; font-weight: bold; margin: 15px 0; background: #252538; padding: 8px; border-radius: 6px; letter-spacing: 1px; }
+
+        /* Clickable Zoom Trigger Styles */
+        .qr-wrapper { background: white; padding: 15px; display: inline-block; border-radius: 10px; margin-top: 20px; cursor: pointer; transition: transform 0.2s; }
+        .qr-wrapper:hover { transform: scale(1.05); }
+        .qr-wrapper img { display: block; }
+        .hint-text { font-size: 11px; color: #707085; margin-top: 6px; display: block; }
+
+        .btn { display: block; background: #ff3838; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-top: 25px; font-weight: bold; }
+
+        /* Immersive Zoom Lightbox Overlay */
+        .zoom-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 999; cursor: zoom-out; }
+        .zoom-content { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .zoom-content img { width: 320px; height: 320px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="ticket-card">
+        <div class="success-icon">🎉</div>
+        <h1>Booking Confirmed!</h1>
+        <div class="token-highlight">{{ b.booking_token }}</div>
+
+        <div class="field"><span class="label">Movie:</span><span class="value">{{ b.movie_title }}</span></div>
+        <div class="field"><span class="label">Timing:</span><span class="value">{{ b.show_time }}</span></div>
+        <div class="field"><span class="label">Seats Locked:</span><span class="value">#{{ b.seats_list }}</span></div>
+        <div class="field"><span class="label">Amount Paid:</span><span class="value">₹{{ b.total_price }}</span></div>
+
+        <div class="qr-wrapper" onclick="openZoom()">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VALID_TICKET_{{ b.booking_token }}" alt="QR Code">
+            <span class="hint-text">🔍 Click passport to enlarge</span>
+        </div>
+
+        <a href="/" class="btn">Return to Dashboard</a>
+    </div>
+
+    <!-- Enlarged Modal Container -->
+    <div class="zoom-overlay" id="lightbox" onclick="closeZoom()">
+        <div class="zoom-content" onclick="event.stopPropagation()">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=VALID_TICKET_{{ b.booking_token }}" alt="Enlarged QR">
+        </div>
+    </div>
+
+    <script>
+        function openZoom() { document.getElementById('lightbox').style.display = 'flex'; }
+        function closeZoom() { document.getElementById('lightbox').style.display = 'none'; }
+    </script>
+</body>
+</html>
